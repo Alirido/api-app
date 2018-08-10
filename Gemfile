@@ -19,8 +19,10 @@ gem 'figaro'
 gem 'bcrypt'
 gem 'swagger-blocks'
 gem 'capistrano'
+gem 'devise-jwt'
 group :development do
   gem 'byebug', platform: :mri
+  gem 'pry'
 end
 
 group :development, :test do

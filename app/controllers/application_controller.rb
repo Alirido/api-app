@@ -2,10 +2,14 @@ require 'swagger/blocks'
 require_dependency 'moslemcorners/auth'
 
 class ApplicationController < ActionController::API
+    include ActionController::MimeResponds
     include Swagger::Blocks
-    before_action :authenticate
+    before_action :authenticate_user!
+    # before_action :authenticate, :if => proc {JANGAN DIPAKAI PROC NYA}
+    respond_to :json
 
     def verified?
+        # binding.pry
         !!current_user
     end
 
@@ -56,5 +60,27 @@ class ApplicationController < ActionController::API
 
     def uid_present?
         !!request.env.fetch('HTTP_UID','')
+    end
+
+    def render_resource(resource)
+        if resource.errors.empty?
+            render json: {resource: resource}
+            # , token: token }
+        else
+            validation_error(resource)
+        end
+    end
+
+    def validation_error(resource)
+        render json: {
+          errors: [
+            {
+              status: '400',
+              title: 'Bad Request',
+              detail: resource.errors,
+              code: '100'
+            }
+          ]
+        }, status: :bad_request
     end
 end

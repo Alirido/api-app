@@ -1,4 +1,21 @@
 Rails.application.routes.draw do
+
+  devise_for :users, defaults: { format: :json },
+                path: '',
+                path_names: {
+                    sign_in: 'login',
+                    sign_out: 'logout',
+                    registration: 'signup',
+                    sign_up: 'signup'
+                },
+                controllers: {
+                    sessions: 'sessions',
+                    registrations: 'registrations'
+                }
+
+    get 'users', to: 'users#index'
+    get 'users/:id', to: 'users#show'
+
     root to: redirect('/swagger/dist/index.html?url=/apidocs')
     resources :apidocs, only: [:index]
     scope :admin do
