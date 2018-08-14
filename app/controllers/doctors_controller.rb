@@ -1,5 +1,5 @@
-class DoctersController < ApplicationController
-	before_action :authenticateDocter
+class DoctorsController < ApplicationController
+	before_action :authenticateDoctor
 
 	def index
 		users = User.where(role_id: "5b6c1b2a1d5eaa4c5ca9b7a4").order(email: :asc).page(params[:page])

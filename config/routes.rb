@@ -13,10 +13,12 @@ Rails.application.routes.draw do
                     registrations: 'registrations'
                 }
 
-    get 'users', to: 'users#index'
-    get 'users/:id', to: 'users#show'
+    # get 'users', to: 'users#index'
+    # get 'users/:id', to: 'users#show'
+        resources :doctors, controller: :users, type: 'Doctor'
+        resources :members, controller: :users, type: 'Member'
 
-    get 'docters', to: 'docters#index'
+    get 'doctors', to: 'doctors#index'
 
     root to: redirect('/swagger/dist/index.html?url=/apidocs')
     resources :apidocs, only: [:index]

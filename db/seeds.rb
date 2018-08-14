@@ -1,2 +1,1 @@
-Role.create(name: "Member")
-Role.create(name: "Docter")
+# Role.last.update_attribute(name: "Doctor")

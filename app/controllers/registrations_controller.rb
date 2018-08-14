@@ -12,7 +12,7 @@ class RegistrationsController < Devise::RegistrationsController
     build_resource
     yield resource if block_given?
     # respond_with resource
-    render json: {user: {id: resource.id, email: resource.email}, token: resource.token} 
+    render json: {user: resource, token: resource.token} 
   end
 
   # POST /resource
@@ -27,17 +27,19 @@ class RegistrationsController < Devise::RegistrationsController
         # set_flash_message! :notice, :signed_up
         sign_up(resource_name, resource)
         # respond_with resource, location: after_sign_up_path_for(resource)
-        render json: {user: {id: resource.id, email: resource.email}, token: resource.token} 
+        render json: {user: resource, token: resource.token}
+        # {user: {id: resource.id, email: resource.email}, token: resource.token} 
       else
         # set_flash_message! :notice, :"signed_up_but_#{resource.inactive_message}"
         expire_data_after_sign_in!
-        respond_with resource, location: after_inactive_sign_up_path_for(resource)
+        # respond_with resource, location: after_inactive_sign_up_path_for(resource)
+        render json: {user: resource, token: resource.token}
       end
     else
       clean_up_passwords resource
       set_minimum_password_length
       # respond_with resource
-      render json: {user: {id: resource.id, email: resource.email}, token: resource.token} 
+      render json: {user: resource, token: resource.token} 
     end
   end
 
@@ -67,9 +69,16 @@ class RegistrationsController < Devise::RegistrationsController
 
   protected
 
+  # Build a devise resource passing in the session. Useful to move
+  # temporary session data to the newly created user.
+  def build_resource(hash = {})
+    # binding.pry
+    self.resource = resource_class.send(set_type).new_with_session(hash, session)
+  end
+
   # If you have extra params to permit, append them to the sanitizer.
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:role_id])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:type, :role_id])
   end
 
   # If you have extra params to permit, append them to the sanitizer.
@@ -86,4 +95,16 @@ class RegistrationsController < Devise::RegistrationsController
   # def after_inactive_sign_up_path_for(resource)
   #   super(resource)
   # end
+
+  # private
+
+  def set_type
+    case params[:user][:type]
+    when 'Doctor'
+      'doctor'
+    when 'Member'
+      'member'
+    end
+  end
+
 end

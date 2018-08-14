@@ -6,14 +6,14 @@ class ApplicationController < ActionController::API
     include Swagger::Blocks
     # before_action :authenticate_user!
     # before_action :authenticate, :if => proc {JANGAN DIPAKAI PROC NYA}
-    # respond_to :json
+    respond_to :json
 
     def verified_member?
         !!try_current_member
     end
 
-    def verified_docter?
-        !!try_current_docter
+    def verified_doctor?
+        !!try_current_doctor
     end
 
     def try_current_member
@@ -26,9 +26,10 @@ class ApplicationController < ActionController::API
             if decrypted_uid == uid
                 begin
                     user = User.find(decrypted_uid)
+                    # binding.pry
                     if user.role.name == 'Member'
                         @current_member ||= user
-                    else # Belum selesai, perlu didalemin lagi bagian ini, karna asal nulis
+                    else
                         nil
                     end
                 rescue
@@ -42,7 +43,7 @@ class ApplicationController < ActionController::API
         end
     end
 
-    def try_current_docter
+    def try_current_doctor
         if auth_present? && uid_present?
             begin
                 decrypted_uid = auth['user']
@@ -52,9 +53,9 @@ class ApplicationController < ActionController::API
             if decrypted_uid == uid
                 begin
                     user = User.find(decrypted_uid)
-                    if user.role.name == 'Docter'
-                        @current_docter ||= user
-                    else # Belum selesai, perlu didalemin lagi bagian ini, karna asal nulis
+                    if user.role.name == 'Doctor'
+                        @current_doctor ||= user
+                    else
                         nil
                     end
                 rescue
@@ -72,8 +73,8 @@ class ApplicationController < ActionController::API
         render json: { status: '401', message: 'unauthorized access' }, status: 401 unless verified_member?
     end
 
-    def authenticateDocter
-        render json: { status: '401', message: 'unauthorized access' }, status: 401 unless verified_docter?
+    def authenticateDoctor
+        render json: { status: '401', message: 'unauthorized access' }, status: 401 unless verified_doctor?
     end
 
     private

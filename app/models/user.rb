@@ -43,13 +43,18 @@ class User
   # field :failed_attempts, type: Integer, default: 0 # Only if lock strategy is :failed_attempts
   # field :unlock_token,    type: String # Only if unlock strategy is :email or :both
   # field :locked_at,       type: Time
-  # attr_accessor :id, :email, :role_id
+  
+  # For inheritance
+  field :type,      type: String
+
+
+
   paginates_per 5
 
 
   HIDDEN_FIELDS = [:role_id, :token]
 
-  
+
   def serializable_hash(options={})
     options[:except] = Array(options[:except])
 
