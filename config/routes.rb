@@ -7,7 +7,7 @@ Rails.application.routes.draw do
                     sign_out: 'logout',
                     registration: 'signup',
                     sign_up: 'signup'
-                },
+                }, 
                 controllers: {
                     sessions: 'sessions',
                     registrations: 'registrations'
@@ -15,6 +15,8 @@ Rails.application.routes.draw do
 
     get 'users', to: 'users#index'
     get 'users/:id', to: 'users#show'
+
+    get 'docters', to: 'docters#index'
 
     root to: redirect('/swagger/dist/index.html?url=/apidocs')
     resources :apidocs, only: [:index]

@@ -1,10 +1,11 @@
 class UsersController < ApplicationController
-	skip_before_action :authenticate_user!
-	# binding.pry
-	def index
-		users = User.all.order(email: :asc).page(params[:page])
+	# before_action :authenticate_user!
+	before_action :authenticateMember
 
-		render json: {users: users, totalpages: users.total_pages}, each_serializer: UserSerializer, status: 200
+	def index
+		users = User.where(role_id: "5b6c1b2a1d5eaa4c5ca9b7a3").order(email: :asc).page(params[:page])
+		role = Role.find(id: "5b6c1b2a1d5eaa4c5ca9b7a3")
+		render json: {users: users, as: role.name, totalpages: users.total_pages}, each_serializer: UserSerializer, status: 200
 	end
 
 	def show

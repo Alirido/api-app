@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require_dependency 'moslemcorners/auth'
 
-class SessionsController < Devise::SessionsController
+class User::SessionsController < Devise::SessionsController
   # before_action :configure_sign_in_params, only: [:create]
-  # skip_before_action :authenticate_user!
+  skip_before_action :authenticate_user!
   respond_to :json
 
   # GET /resource/sign_in
@@ -11,7 +11,7 @@ class SessionsController < Devise::SessionsController
     self.resource = resource_class.new(sign_in_params)
     clean_up_passwords(resource)
     yield resource if block_given?
-    # respond_with(resource, serialize_options(resource))
+    respond_with(resource, serialize_options(resource))
     render json: {user: {id: resource.id, email: resource.email}, token: resource.token} 
   end
 
@@ -23,7 +23,7 @@ class SessionsController < Devise::SessionsController
     resource.update_attribute(:token, token)
     sign_in(resource_name, resource)
     yield resource if block_given?
-    # respond_with resource, location: after_sign_in_path_for(resource)
+    respond_with resource, location: after_sign_in_path_for(resource)
     render json: {user: {id: resource.id, email: resource.email}, token: resource.token}
   end
 
@@ -31,9 +31,8 @@ class SessionsController < Devise::SessionsController
   def destroy
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
     # set_flash_message! :notice, :signed_out if signed_out
-    resource.token=""
     yield if block_given?
-    # respond_to_on_destroy
+    respond_to_on_destroy
     render json: {status: "Logged out successfully!"}
   end
 

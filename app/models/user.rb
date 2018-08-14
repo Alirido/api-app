@@ -31,6 +31,8 @@ class User
   field :current_sign_in_ip, type: String
   field :last_sign_in_ip,    type: String
 
+  field :token, type: String, default: ''
+
   ## Confirmable
   # field :confirmation_token,   type: String
   # field :confirmed_at,         type: Time
@@ -41,6 +43,21 @@ class User
   # field :failed_attempts, type: Integer, default: 0 # Only if lock strategy is :failed_attempts
   # field :unlock_token,    type: String # Only if unlock strategy is :email or :both
   # field :locked_at,       type: Time
-
+  # attr_accessor :id, :email, :role_id
   paginates_per 5
+
+
+  HIDDEN_FIELDS = [:role_id, :token]
+
+  
+  def serializable_hash(options={})
+    options[:except] = Array(options[:except])
+
+    if options[:force_except]
+      options[:except].concat Array(options[:force_except])
+    else
+      options[:except].concat HIDDEN_FIELDS
+    end
+    super(options)
+  end
 end
