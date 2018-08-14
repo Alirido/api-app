@@ -4,27 +4,33 @@ require_dependency 'moslemcorners/auth'
 class ApplicationController < ActionController::API
     include ActionController::MimeResponds
     include Swagger::Blocks
-    before_action :authenticate_user!
+    # before_action :authenticate_user!
     # before_action :authenticate, :if => proc {JANGAN DIPAKAI PROC NYA}
-    respond_to :json
+    # respond_to :json
 
-    def verified?
-        # binding.pry
-        !!current_user
+    def verified_member?
+        !!try_current_member
     end
 
-    def current_user
+    def verified_docter?
+        !!try_current_docter
+    end
+
+    def try_current_member
         if auth_present? && uid_present?
             begin
-                decrypted_uid = auth['core_user']
+                decrypted_uid = auth['user']
             rescue
                 nil
             end
-
             if decrypted_uid == uid
                 begin
-                    core_user = Admin::CoreUser.find(decrypted_uid)
-                    @current_user ||= core_user
+                    user = User.find(decrypted_uid)
+                    if user.role.name == 'Member'
+                        @current_member ||= user
+                    else # Belum selesai, perlu didalemin lagi bagian ini, karna asal nulis
+                        nil
+                    end
                 rescue
                     nil
                 end
@@ -36,8 +42,38 @@ class ApplicationController < ActionController::API
         end
     end
 
-    def authenticate
-        render json: { status: '401', message: 'unauthorized access' }, status: 401 unless verified?
+    def try_current_docter
+        if auth_present? && uid_present?
+            begin
+                decrypted_uid = auth['user']
+            rescue
+                nil
+            end
+            if decrypted_uid == uid
+                begin
+                    user = User.find(decrypted_uid)
+                    if user.role.name == 'Docter'
+                        @current_docter ||= user
+                    else # Belum selesai, perlu didalemin lagi bagian ini, karna asal nulis
+                        nil
+                    end
+                rescue
+                    nil
+                end
+            else
+                nil
+            end
+        else
+            nil
+        end
+    end
+
+    def authenticateMember
+        render json: { status: '401', message: 'unauthorized access' }, status: 401 unless verified_member?
+    end
+
+    def authenticateDocter
+        render json: { status: '401', message: 'unauthorized access' }, status: 401 unless verified_docter?
     end
 
     private
@@ -62,25 +98,25 @@ class ApplicationController < ActionController::API
         !!request.env.fetch('HTTP_UID','')
     end
 
-    def render_resource(resource)
-        if resource.errors.empty?
-            render json: {resource: resource}
-            # , token: token }
-        else
-            validation_error(resource)
-        end
-    end
+    # def render_resource(resource)
+    #     if resource.errors.empty?
+    #         render json: {resource: resource}
+    #         # , token: token }
+    #     else
+    #         validation_error(resource)
+    #     end
+    # end
 
-    def validation_error(resource)
-        render json: {
-          errors: [
-            {
-              status: '400',
-              title: 'Bad Request',
-              detail: resource.errors,
-              code: '100'
-            }
-          ]
-        }, status: :bad_request
-    end
+    # def validation_error(resource)
+    #     render json: {
+    #       errors: [
+    #         {
+    #           status: '400',
+    #           title: 'Bad Request',
+    #           detail: resource.errors,
+    #           code: '100'
+    #         }
+    #       ]
+    #     }, status: :bad_request
+    # end
 end
